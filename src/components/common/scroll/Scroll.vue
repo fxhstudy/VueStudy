@@ -15,6 +15,10 @@ export default {
     probeType: {
       type: Number,
       default: 0
+    },
+    pullUpLoad: {
+      type: Boolean,
+      default: false
     }
   },
   data(){
@@ -28,7 +32,8 @@ export default {
       observeDom:true,
       observeImage:true,
       probeType: this.probeType,
-      click: true
+      click: true,
+      pullUpLoad: this.pullUpLoad
     })
 
     // 2.监听滚动鼠标
@@ -36,10 +41,18 @@ export default {
       // console.log(position);
       this.$emit('scroll', position)
     })
+
+    //3.下拉监听
+    this.scroll.on('pullingUp', () => {
+      this.$emit('pullingUp')
+    })
   },
   methods: {
     scrollTo(x, y, time=300){
       this.scroll.scrollTo(x, y, time)
+    },
+    finishPullUp(){
+      this.scroll.finishPullUp();
     }
   }
 }
