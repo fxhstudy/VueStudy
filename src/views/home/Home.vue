@@ -5,6 +5,10 @@
         <div slot="center">购物街</div>
       </template>
     </nav-bar>
+    <tab-control :titles="['流行', '新款', '精选']"
+                 @tabClick="tabClick"
+                 ref="tabControl1"
+                 class="tab-control" v-show="isTabFixed"/>
     <scroll class="content" ref="scroll"
             :probe-type="3"
             @scroll="contentScroll"
@@ -15,17 +19,17 @@
       <feature-view/>
       <tab-control :titles="['流行', '新款', '精选']"
                    @tabClick="tabClick"
-                   ref="tabControl" :class="{fixed: isTabFixed}"/>
+                   ref="tabControl2"/>
       <goods-list :goods="showGoods"/>
     </scroll>
-    //.native 监听组件点击
+
     <back-top @click.native="backClick" v-show="isShowBackTop"/>
 
 
   </div>
 </template>
 
-<script>
+<script>/*.native 监听组件点击*/
 import HomeSwiper from "@/views/home/childComps/HomeSwiper";
 import RecommendView from "@/views/home/childComps/RecommendView";
 import FeatureView from "@/views/home/childComps/FeatureView";
@@ -112,6 +116,8 @@ export default {
           this.currentType = 'sell'
           break
       }
+      this.$refs.tabControl1.currentIndex = index
+      this.$refs.tabControl2.currentIndex = index
       // console.log(this.currentType);
     },
     backClick(){
@@ -130,8 +136,8 @@ export default {
       this.getHomeGoods(this.currentType)
     },
     swiperImageLoad(){
-      console.log(this.$refs.tabControl.$el.offsetTop);
-      this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop;
+      console.log(this.$refs.tabControl2.$el.offsetTop);
+      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
     },
 
     /**
@@ -170,11 +176,12 @@ export default {
   background-color: var(--color-tint);
   color: white;
 
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: 9;
+  /*之前是原生滚动，为了让导航不跟随一起滚动*/
+  /*position: fixed;*/
+  /*left: 0;*/
+  /*right: 0;*/
+  /*top: 0;*/
+  /*z-index: 9;*/
 }
 
 .content{
@@ -187,10 +194,9 @@ export default {
   right: 0;
 }
 
-.fixed{
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 44px;
+.tab-control{
+  position: relative;
+  z-index: 9;
 }
+
 </style>
