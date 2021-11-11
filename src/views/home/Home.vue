@@ -10,10 +10,12 @@
             @scroll="contentScroll"
             :pull-up-load="true"
             @pullingUp="loadMore">
-      <home-swiper :banners="banners"/>
+      <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad"/>
       <recommend-view :recommends="recommends"/>
       <feature-view/>
-      <tab-control class="tab-control1" :titles="['流行', '新款', '精选']" @tabClick="tabClick"/>
+      <tab-control :titles="['流行', '新款', '精选']"
+                   @tabClick="tabClick"
+                   ref="tabControl" :class="{fixed: isTabFixed}"/>
       <goods-list :goods="showGoods"/>
     </scroll>
     //.native 监听组件点击
@@ -35,6 +37,7 @@ import GoodsList from "@/components/content/goods/GoodsList";
 import BackTop from "@/components/content/backTop/BackTop";
 
 import {getHomeMultidata, getHomeGoods} from "@/network/home";
+import {debounce} from "@/common/utils";
 
 export default {
   name: "Home",
@@ -58,7 +61,9 @@ export default {
         'sell': {page: 0, list: []}
       },
       currentType: 'pop',
-      isShowBackTop: false
+      isShowBackTop: false,
+      tabOffsetTop: 0,
+      isTabFixed: false
     }
   },
   computed: {
@@ -82,25 +87,19 @@ export default {
     this.$bus.on('itemImageLoad', () => {
       this.$refs.scroll.refresh();
     })*/
-    const refresh = this.debounce(this.$refs.scroll.refresh, 1);
+    // 1.图片加载完成后的事件监听
+    const refresh = debounce(this.$refs.scroll.refresh, 1);
     this.$bus.on('itemImageLoad', () => {
       refresh()
     })
+
+    // 2.获取tabControl的offsetTop
+    // 所以组件都有一个属性$el - 用于获取组件中的元素的
   },
   methods:{
     /**
      * 事件监听相关的方法
      */
-    debounce(func, delay){
-      let timer = null;
-      return function (...args) {
-        if (timer) clearTimeout(timer)
-        timer = setTimeout(() => {
-          func.apply(this, args)
-        }, delay)
-      }
-    },
-
     tabClick(index){
       switch (index) {
         case 0:
@@ -115,18 +114,24 @@ export default {
       }
       // console.log(this.currentType);
     },
-
     backClick(){
       this.$refs.scroll.scrollTo(0, 0)
     },
-
     contentScroll(position){
       // console.log(position);
+      //1.判断BackTop是否显示
       this.isShowBackTop = -position.y > 1000
-    },
 
+      //2.决定tabControl是否吸顶(position: fixed)
+      this.isTabFixed = (-position.y) > this.tabOffsetTop
+    },
     loadMore(){
+      // console.log('加载更多的方法');
       this.getHomeGoods(this.currentType)
+    },
+    swiperImageLoad(){
+      console.log(this.$refs.tabControl.$el.offsetTop);
+      this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop;
     },
 
     /**
@@ -147,6 +152,7 @@ export default {
         this.goods[type].page += 1
         // console.log(this.goods);
 
+        //完成上拉加载更多
         this.$refs.scroll.finishPullUp()
       })
     }
@@ -171,12 +177,6 @@ export default {
   z-index: 9;
 }
 
-.tab-control1 {
-  position: sticky;
-  top: 44px;
-  z-index: 9;
-}
-
 .content{
   overflow: hidden;
 
@@ -185,5 +185,12 @@ export default {
   bottom: 49px;
   left: 0;
   right: 0;
+}
+
+.fixed{
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 44px;
 }
 </style>

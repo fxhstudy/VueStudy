@@ -42,20 +42,23 @@ export default {
       this.$emit('scroll', position)
     })
 
-    //3.下拉监听
-    this.scroll.on('pullingUp', () => {
-      this.$emit('pullingUp')
-    })
+    //3.监听scroll滚动到底部
+    if (this.pullUpLoad){
+      this.scroll.on('pullingUp', () => {
+        // console.log('上拉加载更多');
+        this.$emit('pullingUp')
+      })
+    }
   },
   methods: {
     scrollTo(x, y, time=300){
       this.scroll && this.scroll.scrollTo(x, y, time)
     },
     finishPullUp(){
-      this.scroll.finishPullUp();
+      this.scroll && this.scroll.finishPullUp();
     },
     refresh(){
-      console.log('---');
+      // console.log('---');
       this.scroll && this.scroll.refresh();
     }
   }
