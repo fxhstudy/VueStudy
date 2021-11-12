@@ -1,9 +1,9 @@
 <template>
-<div class="wrapper" ref="wrapper">
-  <div class="content">
-    <slot></slot>
+  <div class="wrapper" ref="wrapper">
+    <div class="content">
+      <slot></slot>
+    </div>
   </div>
-</div>
 </template>
 
 <script>
@@ -21,7 +21,7 @@ export default {
       default: false
     }
   },
-  data(){
+  data() {
     return {
       scroll: null
     }
@@ -29,8 +29,8 @@ export default {
   mounted() {
     // 1.创建BScroll对象
     this.scroll = new BScroll(this.$refs.wrapper, {
-      observeDom:true,
-      observeImage:true,
+      observeDom: true,
+      observeImage: true,
       probeType: this.probeType,
       click: true,
       pullUpLoad: this.pullUpLoad
@@ -43,7 +43,7 @@ export default {
     })
 
     //3.监听scroll滚动到底部
-    if (this.pullUpLoad){
+    if (this.pullUpLoad) {
       this.scroll.on('pullingUp', () => {
         // console.log('上拉加载更多');
         this.$emit('pullingUp')
@@ -51,15 +51,18 @@ export default {
     }
   },
   methods: {
-    scrollTo(x, y, time=300){
+    scrollTo(x, y, time = 300) {
       this.scroll && this.scroll.scrollTo(x, y, time)
     },
-    finishPullUp(){
+    finishPullUp() {
       this.scroll && this.scroll.finishPullUp();
     },
-    refresh(){
+    refresh() {
       // console.log('---');
       this.scroll && this.scroll.refresh();
+    },
+    getScrollY() {
+      return this.scroll ? this.scroll.y : 0
     }
   }
 }
